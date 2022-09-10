@@ -57,9 +57,9 @@ And define the variables accordingly.
 MYSQL_ROOT_PASSWORD='(redacted)'
 
 # WordPress database name, username and password
-MYSQL_WORDPRESS_DATABASE='kurtcms_org'
-MYSQL_WORDPRESS_USER='kurtcms_org'
-MYSQL_WORDPRESS_PASSWORD='(redacted)'
+DB_WORDPRESS_DATABASE='wp'
+DB_WORDPRESS_USER='wp'
+DB_WORDPRESS_PASSWORD='(redacted)'
 ```
 
 ### Docker Compose

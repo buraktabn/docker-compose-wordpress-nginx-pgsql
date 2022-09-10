@@ -7,18 +7,18 @@ x-logging: &logging
     max-file: '5'
 
 services:
-  mysql:
-    image: mysql:8.0
-    container_name: mysql
+  db:
+    image: mariadb
+    container_name: db
     restart: unless-stopped
     env_file: .env
     environment:
-      - MYSQL_ROOT_PASSWORD=$MYSQL_ROOT_PASSWORD
-      - MYSQL_DATABASE=$MYSQL_WORDPRESS_DATABASE
-      - MYSQL_USER=$MYSQL_WORDPRESS_USER
-      - MYSQL_PASSWORD=$MYSQL_WORDPRESS_PASSWORD
+      - MARIADB_ROOT_PASSWORD=$DB_ROOT_PASSWORD
+      - MARIADB_DATABASE=$DB_WORDPRESS_DATABASE
+      - MARIADB_USER=$DB_WORDPRESS_USER
+      - MARIADB_PASSWORD=$DB_WORDPRESS_PASSWORD
     volumes:
-      - mysql:/var/lib/mysql
+      - ./.mariadb:/var/lib/mysql
     logging: *logging
     command: '--default-authentication-plugin=mysql_native_password'
     networks:
@@ -32,13 +32,13 @@ services:
     restart: unless-stopped
     env_file: .env
     environment:
-      - WORDPRESS_DB_HOST=mysql:3306
-      - WORDPRESS_DB_NAME=$MYSQL_WORDPRESS_DATABASE
-      - WORDPRESS_DB_USER=$MYSQL_WORDPRESS_USER
-      - WORDPRESS_DB_PASSWORD=$MYSQL_WORDPRESS_PASSWORD
+      - WORDPRESS_DB_HOST=db:3306
+      - WORDPRESS_DB_NAME=$DB_WORDPRESS_DATABASE
+      - WORDPRESS_DB_USER=$DB_WORDPRESS_USER
+      - WORDPRESS_DB_PASSWORD=$DB_WORDPRESS_PASSWORD
     volumes:
       - ./php-conf/uploads.ini:/usr/local/etc/php/conf.d/uploads.ini
-      - wordpress:/var/www/html
+      - ./.wordpress:/var/www/html
     logging: *logging
     networks:
       - network
@@ -54,8 +54,8 @@ services:
       - 443:443
     volumes:
       - ./nginx-conf:/etc/nginx/conf.d
-      - certbot:/etc/letsencrypt
-      - wordpress:/var/www/html
+      - ./.certbot:/etc/letsencrypt
+      - ./.wordpress:/var/www/html
     logging: *logging
     networks:
       - network
@@ -67,15 +67,10 @@ services:
     image: certbot/certbot
     container_name: certbot
     volumes:
-      - certbot:/etc/letsencrypt
-      - wordpress:/var/www/html
+      - ./.certbot:/etc/letsencrypt
+      - ./.wordpress:/var/www/html
     logging: *logging
     entrypoint: "/bin/sh -c 'trap exit TERM; while :; do certbot renew; sleep 12h & wait $${!}; done;'"
-
-volumes:
-  mysql:
-  wordpress:
-  certbot:
 
 networks:
   network:
